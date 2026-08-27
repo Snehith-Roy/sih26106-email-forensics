@@ -1207,8 +1207,34 @@ timeline — this assumes roughly 4 weeks):
 |---|---|
 | 1 | Phase 0 (all) → Phases 1, 2, 3 in parallel |
 | 2 | Phases 4, 5 in parallel; Member 4 starts scaffolding Phase 7 against mocked module outputs |
+| **—** | **🔗 Mid-point Integration Checkpoint (end of Week 2 / Day 12) — see box below** |
 | 3 | Phase 6, real Phase 7 integration, Phase 8 (frontend) starts against the real API |
 | 4 | Phase 9, Phase 10, buffer days for integration bugs, rehearse the demo script at least twice |
+
+> ### 🔗 Mid-point Integration Checkpoint — Day 12 (end of Week 2)
+>
+> Everyone works solo against agreed data shapes (see §11a below) — which
+> means the team never actually sees the pieces fit together until
+> someone tries plugging them in. **Don't let that first attempt happen
+> the night before the demo.** Do one deliberate checkpoint at the
+> project's halfway point instead:
+>
+> - **Who runs it:** Member 4 (Backend/Integration Lead)
+> - **What happens:** every member pushes whatever they have — even
+>   rough/incomplete — to their feature branch. Member 4 swaps out mock
+>   data in `routes/analyze.py` for real imports from Members 1, 2, 3,
+>   one at a time, and runs the existing tests in `backend/tests/`
+>   against real modules instead of fixtures.
+> - **Goal:** catch shape mismatches (a renamed field, an unexpected
+>   `None`, a different key name) while there's still 2 weeks to fix
+>   them — not on demo day.
+> - **Outcome:** either "integration works, continue as planned" or a
+>   short list of shape-mismatch fixes assigned back to whoever owns
+>   that module.
+> - This is tracked as a GitHub issue — see
+>   [`.github/ISSUE_TEMPLATE/integration_checkpoint.md`](.github/ISSUE_TEMPLATE/integration_checkpoint.md).
+>   Create one from that template on Day 1 so it's sitting on the board
+>   as a visible deadline, not just a verbal plan.
 
 ---
 

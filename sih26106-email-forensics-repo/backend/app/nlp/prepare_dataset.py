@@ -2,8 +2,13 @@
 Phase 3 — Dataset Preparation
 Owner: Member 2
 """
-import pandas as pd
 import re
+try:
+    import pandas as pd
+    DataFrameType = pd.DataFrame
+except ImportError:
+    pd = None
+    DataFrameType = "Any"
 
 
 def clean_body(text: str) -> str:
@@ -13,7 +18,7 @@ def clean_body(text: str) -> str:
     return text
 
 
-def load_dataset(path="dataset/starter_phishing_dataset.csv") -> pd.DataFrame:
+def load_dataset(path="dataset/starter_phishing_dataset.csv") -> DataFrameType:
     df = pd.read_csv(path)
     df = df.dropna(subset=["body", "label"])
     df["clean_body"] = df["body"].apply(clean_body)

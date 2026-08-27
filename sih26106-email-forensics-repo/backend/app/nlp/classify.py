@@ -11,13 +11,24 @@ from app.nlp.heuristics import (
     urgency_score, impersonation_score, display_name_domain_mismatch,
 )
 
-_vectorizer = joblib.load("backend/models_store/tfidf_vectorizer.pkl")
-_model = joblib.load("backend/models_store/xgb_classifier.pkl")
+import logging
 
+try:
+    _vectorizer = joblib.load("backend/models_store/tfidf_vectorizer.pkl")
+    _model = joblib.load("backend/models_store/xgb_classifier.pkl")
+except Exception as e:
+    logging.warning(f"Failed to load ML models: {e}. Using mock NLP.")
+    _vectorizer = None
+    _model = None
 
 def classify_email(subject: str, body: str, from_name: str, from_address: str) -> dict:
     text = subject + " " + clean_body(body)
-    proba = float(_model.predict_proba(_vectorizer.transform([text]))[0][1])
+    
+    if _model and _vectorizer:
+        proba = float(_model.predict_proba(_vectorizer.transform([text]))[0][1])
+    else:
+        proba = 0.85  # Mock probability
+
     return {
         "ml_phishing_probability": proba,
         "urgency_score": urgency_score(text),

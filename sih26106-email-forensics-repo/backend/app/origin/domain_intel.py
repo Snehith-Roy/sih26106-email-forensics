@@ -17,13 +17,27 @@ IPINFO_TOKEN = os.environ.get("IPINFO_TOKEN", "")
 
 
 def check_abuseipdb(ip: str) -> dict:
-    resp = requests.get(
-        "https://api.abuseipdb.com/api/v2/check",
-        params={"ipAddress": ip, "maxAgeInDays": 90},
-        headers={"Key": ABUSEIPDB_KEY, "Accept": "application/json"},
-        timeout=5,
-    )
-    data = resp.json().get("data", {})
+    if not ABUSEIPDB_KEY:
+        return {
+            "abuse_confidence_score": 0,
+            "is_tor": False,
+            "total_reports": 0,
+            "isp": "Mock ISP",
+            "usage_type": "Mock Usage",
+        }
+        
+    try:
+        resp = requests.get(
+            "https://api.abuseipdb.com/api/v2/check",
+            params={"ipAddress": ip, "maxAgeInDays": 90},
+            headers={"Key": ABUSEIPDB_KEY, "Accept": "application/json"},
+            timeout=5,
+        )
+        resp.raise_for_status()
+        data = resp.json().get("data", {})
+    except Exception as e:
+        data = {}
+        
     return {
         "abuse_confidence_score": data.get("abuseConfidenceScore"),
         "is_tor": data.get("isTor"),
@@ -34,11 +48,19 @@ def check_abuseipdb(ip: str) -> dict:
 
 
 def check_ipinfo_lite(ip: str) -> dict:
-    # Free "Lite" tier: unlimited requests, country + ASN only.
-    resp = requests.get(
-        f"https://api.ipinfo.io/lite/{ip}", params={"token": IPINFO_TOKEN}, timeout=5
-    )
-    data = resp.json()
+    if not IPINFO_TOKEN:
+        return {"asn": "AS0000", "as_name": "Mock AS", "country": "US"}
+        
+    try:
+        # Free "Lite" tier: unlimited requests, country + ASN only.
+        resp = requests.get(
+            f"https://api.ipinfo.io/lite/{ip}", params={"token": IPINFO_TOKEN}, timeout=5
+        )
+        resp.raise_for_status()
+        data = resp.json()
+    except Exception as e:
+        data = {}
+        
     return {"asn": data.get("asn"), "as_name": data.get("as_name"),
             "country": data.get("country")}
 

@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+.pytest_cache/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Backend model artifacts (regenerate locally, don't commit large binaries)
+backend/models_store/*.pkl
+backend/models_store/*.mmdb
+backend/models_store/distilbert*/
+
+# Node / frontend
+node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Full dataset corpus (~155MB, pulled via dataset/fetch_full_dataset.sh)
+dataset/full_corpus/
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/
+*.swp

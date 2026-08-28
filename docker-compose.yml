@@ -1,0 +1,31 @@
+version: "3.9"
+services:
+  backend:
+    build: ./backend
+    ports: ["8000:8000"]
+    volumes:
+      - ./backend/models_store:/app/models_store
+      - ./dataset:/app/../dataset
+    environment:
+      - DATABASE_URL=postgresql://sih:sih@db:5432/sih
+      - MAXMIND_ACCOUNT_ID=${MAXMIND_ACCOUNT_ID}
+      - MAXMIND_LICENSE_KEY=${MAXMIND_LICENSE_KEY}
+      - ABUSEIPDB_API_KEY=${ABUSEIPDB_API_KEY}
+      - IPINFO_TOKEN=${IPINFO_TOKEN}
+    depends_on: [db]
+
+  frontend:
+    build: ./frontend
+    ports: ["5173:5173"]
+    depends_on: [backend]
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: sih
+      POSTGRES_PASSWORD: sih
+      POSTGRES_DB: sih
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+
+volumes:
+  pgdata:

@@ -6,6 +6,7 @@ Build this FIRST. Always have a working model before attempting the
 DistilBERT stretch goal (train_distilbert.py) — see the time-box warning
 in IMPLEMENTATION.md Phase 4.
 """
+import os
 import joblib
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
@@ -35,8 +36,12 @@ def train():
 
     print(classification_report(y_test, clf.predict(X_test_vec)))
 
-    joblib.dump(vectorizer, "backend/models_store/tfidf_vectorizer.pkl")
-    joblib.dump(clf, "backend/models_store/xgb_classifier.pkl")
+    _backend_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    _store = os.path.join(_backend_dir, "models_store")
+    os.makedirs(_store, exist_ok=True)
+    joblib.dump(vectorizer, os.path.join(_store, "tfidf_vectorizer.pkl"))
+    joblib.dump(clf, os.path.join(_store, "xgb_classifier.pkl"))
+    print(f"Models saved to {_store}/")
 
 
 if __name__ == "__main__":

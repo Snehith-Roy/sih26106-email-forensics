@@ -11,7 +11,7 @@ URGENCY_PATTERNS = [
     r"\bact now\b", r"\bfinal notice\b", r"\bclick here\b",
 ]
 IMPERSONATION_PATTERNS = [
-    r"\bsecurity team\b", r"\bIT (support|helpdesk)\b",
+    r"\bsecurity team\b", r"\bit (support|helpdesk)\b",
     r"\baccounts? (payable|department)\b", r"\bceo\b", r"\bwire transfer\b",
 ]
 

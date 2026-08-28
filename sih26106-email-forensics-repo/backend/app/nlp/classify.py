@@ -5,6 +5,7 @@ Owner: Member 2
 Requires backend/models_store/tfidf_vectorizer.pkl and xgb_classifier.pkl
 to exist — run `python -m app.nlp.train_baseline` first.
 """
+import os
 import joblib
 from app.nlp.prepare_dataset import clean_body
 from app.nlp.heuristics import (
@@ -13,9 +14,12 @@ from app.nlp.heuristics import (
 
 import logging
 
+_backend_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+_store = os.path.join(_backend_dir, "models_store")
+
 try:
-    _vectorizer = joblib.load("backend/models_store/tfidf_vectorizer.pkl")
-    _model = joblib.load("backend/models_store/xgb_classifier.pkl")
+    _vectorizer = joblib.load(os.path.join(_store, "tfidf_vectorizer.pkl"))
+    _model = joblib.load(os.path.join(_store, "xgb_classifier.pkl"))
 except Exception as e:
     logging.warning(f"Failed to load ML models: {e}. Using mock NLP.")
     _vectorizer = None

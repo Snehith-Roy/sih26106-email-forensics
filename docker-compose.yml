@@ -16,7 +16,9 @@ services:
 
   frontend:
     build: ./frontend
-    ports: ["5173:5173"]
+    # The production image uses nginx, which listens on port 80 inside
+    # the container. Keep 5173 as the browser-facing port for the team.
+    ports: ["5173:80"]
     depends_on: [backend]
 
   db:

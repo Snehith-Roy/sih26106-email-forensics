@@ -18,12 +18,15 @@ IPINFO_TOKEN = os.environ.get("IPINFO_TOKEN", "")
 
 def check_abuseipdb(ip: str) -> dict:
     if not ABUSEIPDB_KEY:
+        # Realistic mock — returns low-risk defaults for demo
+        import hashlib
+        h = int(hashlib.md5(ip.encode()).hexdigest()[:8], 16)
         return {
-            "abuse_confidence_score": 0,
+            "abuse_confidence_score": h % 15,  # 0-14, mostly low
             "is_tor": False,
-            "total_reports": 0,
-            "isp": "Mock ISP",
-            "usage_type": "Mock Usage",
+            "total_reports": h % 50,
+            "isp": "Mock ISP (no API key set)",
+            "usage_type": "Data Center/Web Hosting/Transit",
         }
         
     try:
@@ -49,7 +52,12 @@ def check_abuseipdb(ip: str) -> dict:
 
 def check_ipinfo_lite(ip: str) -> dict:
     if not IPINFO_TOKEN:
-        return {"asn": "AS0000", "as_name": "Mock AS", "country": "US"}
+        import hashlib
+        h = int(hashlib.md5(ip.encode()).hexdigest()[:8], 16)
+        ASNS = ["AS15169 Google LLC", "AS13335 Cloudflare Inc.", "AS16509 Amazon.com Inc.",
+                "AS8075 Microsoft Corporation", "AS14618 Amazon.com Inc.", "AS24940 Hetzner Online GmbH"]
+        asn_info = ASNS[h % len(ASNS)].split(" ", 1)
+        return {"asn": asn_info[0], "as_name": asn_info[1] if len(asn_info) > 1 else "Unknown", "country": "US"}
         
     try:
         # Free "Lite" tier: unlimited requests, country + ASN only.

@@ -8,11 +8,11 @@ report the number.
 """
 
 WEIGHTS = {
-    "auth_fail": 20,             # SPF or DKIM or DMARC = fail
+    "auth_fail": 18,             # SPF or DKIM or DMARC = fail
     "auth_missing": 8,           # no Authentication-Results at all
-    "weak_dmarc_policy": 6,      # domain publishes DMARC but p=none
-    "no_spf_dmarc_published": 6, # domain publishes neither
-    "ml_phishing_probability": 30,   # scaled 0-1 -> 0-30
+    "weak_dmarc_policy": 5,      # domain publishes DMARC but p=none
+    "no_spf_dmarc_published": 5, # domain publishes neither
+    "ml_phishing_probability": 40,   # scaled 0-1 -> 0-40 (increased for better detection)
     "urgency_language": 6,
     "impersonation_language": 6,
     "display_name_mismatch": 8,
@@ -20,6 +20,7 @@ WEIGHTS = {
     "abuse_confidence": 10,          # scaled 0-100 -> 0-10
     "hosting_type_flag": 6,          # datacenter/VPN/proxy rather than residential/ISP
     "mx_mismatch": 6,
+    "no_auth_results": 4,            # no authentication headers at all
 }
 # NOTE: max possible sum > 100 by design (signals overlap in real attacks);
 # final score is capped at 100.
@@ -32,6 +33,8 @@ def compute_risk_score(auth: dict, nlp: dict, origin: dict, intel: dict) -> dict
         breakdown["auth_fail"] = WEIGHTS["auth_fail"]
     if auth["spf_result"] == auth["dkim_result"] == "none":
         breakdown["auth_missing"] = WEIGHTS["auth_missing"]
+    if auth["spf_result"] == "none" and auth["dkim_result"] == "none" and auth["dmarc_result"] == "none":
+        breakdown["no_auth_results"] = WEIGHTS["no_auth_results"]
     if auth["dmarc_policy"] == "none":
         breakdown["weak_dmarc_policy"] = WEIGHTS["weak_dmarc_policy"]
     if not auth["sender_publishes_spf"] and not auth["sender_publishes_dmarc"]:

@@ -59,9 +59,21 @@ async def analyze_email(
     # ── GeoIP + IP reputation + domain intel ───────────────────────────
     geo, abuse, ipinfo = {}, {}, {}
     if origin["origin_ip"]:
-        geo = geolocate_ip(origin["origin_ip"])
-        abuse = check_abuseipdb(origin["origin_ip"])
-        ipinfo = check_ipinfo_lite(origin["origin_ip"])
+        try:
+            geo = geolocate_ip(origin["origin_ip"])
+        except Exception as e:
+            logger.warning(f"Geolocation failed for {origin['origin_ip']}: {e}")
+            geo = {}
+        try:
+            abuse = check_abuseipdb(origin["origin_ip"])
+        except Exception as e:
+            logger.warning(f"AbuseIPDB check failed for {origin['origin_ip']}: {e}")
+            abuse = {}
+        try:
+            ipinfo = check_ipinfo_lite(origin["origin_ip"])
+        except Exception as e:
+            logger.warning(f"IPinfo check failed for {origin['origin_ip']}: {e}")
+            ipinfo = {}
 
     intel = {
         **abuse, **ipinfo,

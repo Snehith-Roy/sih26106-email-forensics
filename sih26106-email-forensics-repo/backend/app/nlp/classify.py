@@ -20,18 +20,27 @@ _store = os.path.join(_backend_dir, "models_store")
 try:
     _vectorizer = joblib.load(os.path.join(_store, "tfidf_vectorizer.pkl"))
     _model = joblib.load(os.path.join(_store, "xgb_classifier.pkl"))
+    _ml_ready = True
+    logging.info(f"ML models loaded successfully from {_store}")
 except Exception as e:
-    logging.warning(f"Failed to load ML models: {e}. Using mock NLP.")
+    _ml_ready = False
+    logging.error(f"CRITICAL: Failed to load ML models from {_store}: {e}")
+    logging.error("ML predictions will NOT be available. Train models first:")
+    logging.error("  python -m app.nlp.train_baseline")
     _vectorizer = None
     _model = None
 
 def classify_email(subject: str, body: str, from_name: str, from_address: str) -> dict:
     text = subject + " " + clean_body(body)
     
-    if _model and _vectorizer:
+    if _ml_ready and _model and _vectorizer:
         proba = float(_model.predict_proba(_vectorizer.transform([text]))[0][1])
     else:
-        proba = 0.85  # Mock probability
+        raise RuntimeError(
+            "ML model not loaded. Cannot make predictions. "
+            "Run 'python -m app.nlp.train_baseline' to train the model, "
+            "or use Docker: docker-compose up --build"
+        )
 
     return {
         "ml_phishing_probability": proba,

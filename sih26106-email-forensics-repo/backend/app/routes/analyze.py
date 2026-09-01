@@ -24,6 +24,10 @@ from app.origin.domain_intel import (
     check_abuseipdb, check_ipinfo_lite, domain_age_days, mx_hosting_mismatch,
 )
 from app.scoring.risk_score import compute_risk_score
+from app.novelty.confidence import assess_confidence
+from app.novelty.counterfactual import generate_counterfactuals
+from app.novelty.homoglyph import analyze_domain_for_spoofing
+from app.novelty.highlight import get_word_contributions, highlight_text
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -67,6 +71,25 @@ async def analyze_email(
 
     # ── Scoring ────────────────────────────────────────────────────────
     score = compute_risk_score(auth.__dict__, nlp, origin, intel)
+
+    # ── Novel Features ─────────────────────────────────────────────────
+    # Feature 6: Confidence/Uncertainty Flagging
+    confidence = assess_confidence(nlp["ml_phishing_probability"])
+    
+    # Feature 2: Counterfactual Risk Explanation
+    counterfactuals = generate_counterfactuals(auth.__dict__, nlp, origin, intel)
+    
+    # Feature 5: Homoglyph/Lookalike-Domain Detector
+    domain_spoof_check = analyze_domain_for_spoofing(sender_domain)
+    
+    # Feature 3: Highlighted-Text Explainability (with graceful fallback)
+    word_contributions = []
+    highlighted_body = parsed.body
+    try:
+        word_contributions = get_word_contributions(parsed.subject + " " + parsed.body)
+        highlighted_body = highlight_text(parsed.body, word_contributions)
+    except Exception as e:
+        logger.warning(f"SHAP highlighting failed: {e}")
 
     # ── Persist to DB ──────────────────────────────────────────────────
     analysis_id = None
@@ -121,4 +144,10 @@ async def analyze_email(
         "origin": {**origin, "geolocation": geo},
         "intel": intel,
         "risk_score": score,
+        # Novel features
+        "confidence": confidence,
+        "counterfactuals": counterfactuals,
+        "domain_spoof_check": domain_spoof_check,
+        "word_contributions": word_contributions,
+        "highlighted_body": highlighted_body,
     }

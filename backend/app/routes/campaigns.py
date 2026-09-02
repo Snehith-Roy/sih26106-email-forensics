@@ -2,23 +2,35 @@
 Phase 6b/7 — /api/campaigns endpoint
 Owner: Member 4
 
-TODO (Member 4): once analyzed emails are persisted (SQLAlchemy models in
-app/models.py + app/db.py), replace `_FAKE_STORE` below with a real query,
-build the graph via app.scoring.correlation.build_campaign_graph, and
-return get_campaigns(G). Left as an in-memory placeholder so the frontend
-(Member 5) can build against a real response shape from day 1.
+Queries persisted analyses from the DB and builds a campaign correlation
+graph via scoring/correlation.py.
 """
-from fastapi import APIRouter
+from typing import Optional
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+
+from app.db import get_db
+from app.models import Analysis
 from app.scoring.correlation import build_campaign_graph, get_campaigns
 
 router = APIRouter()
 
-# Placeholder in-memory store — swap for a real DB query.
-_FAKE_STORE: list[dict] = []
-
 
 @router.get("/api/campaigns")
-async def list_campaigns():
-    graph = build_campaign_graph(_FAKE_STORE)
+async def list_campaigns(db: Optional[Session] = Depends(get_db)):
+    if db is None:
+        return {"campaigns": [], "total_analyzed": 0}
+
+    rows = db.query(Analysis).all()
+    analyzed_emails = [
+        {
+            "email_id": str(r.id),
+            "origin_ip": r.origin_ip,
+            "sender_domain": r.sender_domain,
+            "reply_to": r.from_address,
+        }
+        for r in rows
+    ]
+    graph = build_campaign_graph(analyzed_emails)
     campaigns = get_campaigns(graph)
-    return {"campaigns": campaigns, "total_analyzed": len(_FAKE_STORE)}
+    return {"campaigns": campaigns, "total_analyzed": len(analyzed_emails)}

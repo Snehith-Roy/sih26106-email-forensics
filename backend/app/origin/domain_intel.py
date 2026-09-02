@@ -6,6 +6,7 @@ Requires ABUSEIPDB_API_KEY and IPINFO_TOKEN env vars (see .env.example
 and IMPLEMENTATION.md §13 for free-tier signup links).
 """
 import os
+import logging
 from datetime import datetime, timezone
 
 import dns.resolver
@@ -18,14 +19,14 @@ IPINFO_TOKEN = os.environ.get("IPINFO_TOKEN", "")
 
 def check_abuseipdb(ip: str) -> dict:
     if not ABUSEIPDB_KEY:
+        logging.warning(f"ABUSEIPDB_API_KEY not set. Cannot check IP reputation for {ip}.")
         return {
-            "abuse_confidence_score": 0,
-            "is_tor": False,
-            "total_reports": 0,
-            "isp": "Mock ISP",
-            "usage_type": "Mock Usage",
+            "abuse_confidence_score": None,
+            "is_tor": None,
+            "total_reports": None,
+            "isp": None,
+            "usage_type": None,
         }
-        
     try:
         resp = requests.get(
             "https://api.abuseipdb.com/api/v2/check",
@@ -49,8 +50,8 @@ def check_abuseipdb(ip: str) -> dict:
 
 def check_ipinfo_lite(ip: str) -> dict:
     if not IPINFO_TOKEN:
-        return {"asn": "AS0000", "as_name": "Mock AS", "country": "US"}
-        
+        logging.warning(f"IPINFO_TOKEN not set. Cannot check ASN for {ip}.")
+        return {"asn": None, "as_name": None, "country": None}
     try:
         # Free "Lite" tier: unlimited requests, country + ASN only.
         resp = requests.get(

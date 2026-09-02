@@ -15,6 +15,7 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install -r backend/requirements.txt
+      - run: cd backend && PYTHONPATH=. python -m app.nlp.train_baseline
       - run: cd backend && PYTHONPATH=. pytest -v
 
   frontend-build:

@@ -2,6 +2,7 @@
 Phase 3 — Dataset Preparation
 Owner: Member 2
 """
+import os
 import re
 try:
     import pandas as pd
@@ -18,7 +19,11 @@ def clean_body(text: str) -> str:
     return text
 
 
-def load_dataset(path="dataset/starter_phishing_dataset.csv") -> DataFrameType:
+def load_dataset(path=None) -> DataFrameType:
+    if path is None:
+        # Resolve relative to the backend/ directory (3 levels up from this file)
+        _backend_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        path = os.path.join(os.path.dirname(_backend_dir), "dataset", "starter_phishing_dataset.csv")
     df = pd.read_csv(path)
     df = df.dropna(subset=["body", "label"])
     df["clean_body"] = df["body"].apply(clean_body)

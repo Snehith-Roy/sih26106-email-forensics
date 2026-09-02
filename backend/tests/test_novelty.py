@@ -292,9 +292,16 @@ class TestRedTeam:
 # Integration: Novel features in analyze endpoint
 # ═══════════════════════════════════════════════════════════════════════
 
+import os
+_ml_available = os.path.exists(
+    os.path.join(os.path.dirname(__file__), "..", "models_store", "xgb_classifier.pkl")
+)
+
+
 class TestNoveltyIntegration:
     """Test that novel features are wired into the analyze endpoint."""
 
+    @pytest.mark.skipif(not _ml_available, reason="ML model not trained yet")
     def test_analyze_returns_confidence(self):
         """Analyze endpoint should return confidence field."""
         from fastapi.testclient import TestClient
@@ -308,6 +315,7 @@ class TestNoveltyIntegration:
         assert "verdict" in data["confidence"]
         assert "needs_human_review" in data["confidence"]
 
+    @pytest.mark.skipif(not _ml_available, reason="ML model not trained yet")
     def test_analyze_returns_counterfactuals(self):
         """Analyze endpoint should return counterfactuals field."""
         from fastapi.testclient import TestClient
@@ -321,6 +329,7 @@ class TestNoveltyIntegration:
         assert "baseline_score" in data["counterfactuals"]
         assert "scenarios" in data["counterfactuals"]
 
+    @pytest.mark.skipif(not _ml_available, reason="ML model not trained yet")
     def test_analyze_returns_domain_spoof_check(self):
         """Analyze endpoint should return domain_spoof_check field."""
         from fastapi.testclient import TestClient

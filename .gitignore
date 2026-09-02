@@ -14,6 +14,16 @@ __pycache__/
 backend/models_store/*.pkl
 backend/models_store/*.mmdb
 backend/models_store/distilbert*/
+backend/models_store/*.db
+
+# Temporary files
+*.html
+*.zip
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!vite.config.js
 
 # Node / frontend
 node_modules/

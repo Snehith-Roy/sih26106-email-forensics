@@ -4,7 +4,7 @@ services:
     ports: ["8000:8000"]
     volumes:
       - ./backend/models_store:/app/models_store
-      - ./dataset:/app/../dataset
+      - ./dataset:/dataset
     environment:
       - DATABASE_URL=postgresql://sih:sih@db:5432/sih
       - MAXMIND_ACCOUNT_ID=${MAXMIND_ACCOUNT_ID}

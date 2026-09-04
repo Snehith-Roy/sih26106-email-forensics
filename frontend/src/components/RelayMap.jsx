@@ -66,8 +66,8 @@ export default function RelayMap({ geolocation, originIp, receivedChain, trustBo
     <div className="relative h-full w-full rounded-lg overflow-hidden border border-cyber-border/60">
       <MapContainer center={mapCenter} zoom={zoomLevel} style={{ height: "100%", width: "100%", background: "#060a12" }} zoomControl={false}>
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://openstreetmap.org/">OSM</a>'
+          url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png?api_key=cb1_2xbk_1_5274a8e2177f21f737d3aaf9"
         />
 
         {/* Receiver marker (green) */}
